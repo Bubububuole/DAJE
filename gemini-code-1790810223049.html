@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>William Wallace: La Lotta per la Scozia</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #0f1e17;
+      color: #e2e8f0;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    .paper {
+      background-color: #193128;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+    .gold-text {
+      color: #d4af37;
+    }
+    .gold-btn {
+      background-color: #d4af37;
+      color: #0f1e17;
+    }
+    .gold-btn:hover {
+      background-color: #f3e5ab;
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-12">
+
+  <!-- INTESTAZIONE -->
+  <header class="relative w-full h-56 sm:h-72 overflow-hidden mb-8 border-b border-[#d4af37]/30 bg-[#142820]">
+    <img src="https://images.unsplash.com/photo-1599739291060-4578e37dac5d?auto=format&fit=crop&w=1200&q=80" class="w-full h-full object-cover filter brightness-75" alt="Castello Scozzese">
+    <div class="absolute inset-0 bg-gradient-to-t from-[#0f1e17] via-transparent to-transparent"></div>
+    <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-center w-11/12 max-w-4xl">
+      <h1 class="text-3xl sm:text-5xl font-bold gold-text tracking-wide drop-shadow-md">WILLIAM WALLACE</h1>
+      <p class="text-sm sm:text-lg text-emerald-200 mt-2 font-medium">La Lotta per la Libertà della Scozia</p>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 space-y-6">
+
+    <!-- BARRA DELLE STATISTICHE -->
+    <section class="paper rounded-2xl p-5 shadow-xl">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+        <div class="p-3 bg-[#0f1e17]/60 rounded-xl border border-[#d4af37]/20">
+          <span class="block text-xs text-gray-400 uppercase tracking-wider">Salute</span>
+          <span id="hp-display" class="text-xl font-bold text-red-400">100 / 100</span>
+        </div>
+        <div class="p-3 bg-[#0f1e17]/60 rounded-xl border border-[#d4af37]/20">
+          <span class="block text-xs text-gray-400 uppercase tracking-wider">Provviste</span>
+          <span id="supplies-display" class="text-xl font-bold text-amber-400">5</span>
+        </div>
+        <div class="p-3 bg-[#0f1e17]/60 rounded-xl border border-[#d4af37]/20">
+          <span class="block text-xs text-gray-400 uppercase tracking-wider">Fiducia Popolo</span>
+          <span id="trust-display" class="text-xl font-bold text-emerald-400">50%</span>
+        </div>
+        <div class="p-3 bg-[#0f1e17]/60 rounded-xl border border-[#d4af37]/20">
+          <span class="block text-xs text-gray-400 uppercase tracking-wider">Punti Abilità</span>
+          <span id="points-display" class="text-xl font-bold gold-text">0</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCHERMATA BATTAGLIA / MISSIONE -->
+    <section id="quest-panel" class="paper rounded-2xl p-6 sm:p-8 shadow-xl">
+      <p id="quest-kicker" class="text-xs font-bold gold-text uppercase tracking-widest mb-2"></p>
+      <h2 id="quest-heading" class="text-2xl sm:text-3xl font-bold mb-4"></h2>
+      
+      <!-- IMMAGINE TAPPA CON FALLBACK AUTOMATICO -->
+      <img id="quest-image" src="" alt="Illustrazione Tappa" class="w-full h-52 sm:h-64 object-cover rounded-xl mb-5 border border-[#d4af37]/20 shadow-md">
+
+      <p id="quest-desc" class="text-gray-300 text-base leading-relaxed mb-6"></p>
+
+      <!-- BARRA NEMICO -->
+      <div id="battle-area" class="mb-6 bg-[#0f1e17]/80 p-4 rounded-xl border border-red-500/30">
+        <div class="flex justify-between items-center mb-2">
+          <span id="enemy-name" class="font-bold text-red-300">Nemico</span>
+          <span id="enemy-hp-display" class="text-sm text-red-400 font-semibold">HP: 100 / 100</span>
+        </div>
+        <div class="w-full bg-gray-800 rounded-full h-3 overflow-hidden">
+          <div id="enemy-hp-bar" class="bg-red-600 h-full transition-all duration-300" style="width: 100%;"></div>
+        </div>
+      </div>
+
+      <p id="combat-log" class="text-sm font-medium italic text-amber-200 mb-6 min-h-[2rem] bg-[#0f1e17]/40 p-3 rounded-lg border border-gray-700/50"></p>
+
+      <!-- BOTTONI AZIONE -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <button id="attack-button" class="gold-btn font-bold py-3 px-4 rounded-xl shadow transition transform active:scale-95">Attacca</button>
+        <button id="defend-button" class="bg-emerald-800 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow transition transform active:scale-95">Difendi</button>
+        <button id="rest-button" class="bg-amber-800 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-xl shadow transition transform active:scale-95">Riposa (-1 Provvista)</button>
+      </div>
+    </section>
+
+    <!-- SCHERMATA CAMPO BASE -->
+    <section id="rest-panel" class="paper rounded-2xl p-6 sm:p-8 shadow-xl hidden">
+      <h3 class="text-2xl font-bold gold-text mb-2">Accampamento Scozzese</h3>
+      <p class="text-gray-300 mb-4">Usa le tue risorse per preparare l'esercito alla prossima battaglia.</p>
+      
+      <p id="camp-message" class="text-sm font-semibold text-emerald-300 mb-6 min-h-[1.5rem] bg-[#0f1e17]/60 p-3 rounded-lg border border-emerald-500/30"></p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- SEZIONE EQUIPAGGIAMENTO -->
+        <div class="bg-[#0f1e17]/70 p-5 rounded-xl border border-[#d4af37]/20">
+          <div class="flex justify-between items-center mb-4">
+            <h4 class="font-bold gold-text text-lg">Equipaggiamento</h4>
+            <span class="text-xs bg-amber-900/60 text-amber-200 px-2 py-1 rounded border border-amber-500/30">Costo: 2 Provviste</span>
+          </div>
+          <div class="space-y-3">
+            <button id="sword-button" class="w-full text-left p-3 rounded-lg bg-[#193128] hover:bg-[#234438] border border-gray-600 transition flex justify-between items-center">
+              <div>
+                <div class="font-bold text-sm text-amber-100">Potenzia Spada</div>
+                <div class="text-xs text-gray-400">Aumenta i danni d'attacco (+10)</div>
+              </div>
+              <span id="sword-lvl" class="text-xs font-bold bg-[#0f1e17] px-2 py-1 rounded text-gold-text">Lvl 0</span>
+            </button>
+            <button id="shield-button" class="w-full text-left p-3 rounded-lg bg-[#193128] hover:bg-[#234438] border border-gray-600 transition flex justify-between items-center">
+              <div>
+                <div class="font-bold text-sm text-amber-100">Potenzia Scudo</div>
+                <div class="text-xs text-gray-400">Riduce i danni subiti (-4)</div>
+              </div>
+              <span id="shield-lvl" class="text-xs font-bold bg-[#0f1e17] px-2 py-1 rounded text-gold-text">Lvl 0</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- SEZIONE ABILITÀ -->
+        <div class="bg-[#0f1e17]/70 p-5 rounded-xl border border-[#d4af37]/20">
+          <div class="flex justify-between items-center mb-4">
+            <h4 class="font-bold gold-text text-lg">Abilità Strategiche</h4>
+            <span class="text-xs bg-emerald-900/60 text-emerald-200 px-2 py-1 rounded border border-emerald-500/30">Costo: 1 Punto</span>
+          </div>
+          <div class="space-y-3">
+            <button id="tactics-button" class="w-full text-left p-3 rounded-lg bg-[#193128] hover:bg-[#234438] border border-gray-600 transition flex justify-between items-center">
+              <div>
+                <div class="font-bold text-sm text-emerald-100">Tattica Guerriera</div>
+                <div class="text-xs text-gray-400">Bonus attacco extra (+5)</div>
+              </div>
+              <span id="tactics-lvl" class="text-xs font-bold bg-[#0f1e17] px-2 py-1 rounded text-gold-text">Lvl 0</span>
+            </button>
+            <button id="healing-button" class="w-full text-left p-3 rounded-lg bg-[#193128] hover:bg-[#234438] border border-gray-600 transition flex justify-between items-center">
+              <div>
+                <div class="font-bold text-sm text-emerald-100">Approvvigionamento</div>
+                <div class="text-xs text-gray-400">Migliora la difesa e cura (+8)</div>
+              </div>
+              <span id="healing-lvl" class="text-xs font-bold bg-[#0f1e17] px-2 py-1 rounded text-gold-text">Lvl 0</span>
+            </button>
+            <button id="rally-button" class="w-full text-left p-3 rounded-lg bg-[#193128] hover:bg-[#234438] border border-gray-600 transition flex justify-between items-center">
+              <div>
+                <div class="font-bold text-sm text-emerald-100">Discorso Motivazionale</div>
+                <div class="text-xs text-gray-400">Aumenta guadagno fiducia popolo</div>
+              </div>
+              <span id="rally-lvl" class="text-xs font-bold bg-[#0f1e17] px-2 py-1 rounded text-gold-text">Lvl 0</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <button id="next-day-button" class="w-full gold-btn font-bold py-4 rounded-xl text-lg shadow-lg transition transform active:scale-95">Avanza alla Prossima Missione</button>
+    </section>
+
+    <!-- SCHERMATA GAME OVER / VITTORIA -->
+    <section id="game-over-panel" class="paper rounded-2xl p-6 sm:p-8 text-center shadow-xl hidden">
+      <h2 id="end-title" class="text-3xl font-bold mb-4"></h2>
+      <p id="end-message" class="text-gray-300 text-lg mb-8 leading-relaxed"></p>
+      <button id="restart-button" class="gold-btn font-bold py-3 px-8 rounded-xl text-lg shadow transition transform active:scale-95">Ricomincia la Storia</button>
+    </section>
+
+  </main>
+
+  <script>
+  const $ = id => document.getElementById(id);
+
+  const quests = [
+    { title: "Raid a Scone (1297)", kicker: "Tappa 1 di 6", desc: "William Wallace e William Douglas attaccano il giustiziere inglese Ormesby a Scone, costringendolo alla fuga e unendo i clan scozzesi.", hp: 60, enemyName: "Guarnigione di Ormesby" },
+    { title: "Battaglia di Stirling Bridge (1297)", kicker: "Tappa 2 di 6", desc: "Le forze scozzesi affrontano l'esercito inglese sul stretto ponte sul fiume Forth. La trappola è pronta.", hp: 100, enemyName: "Avanguardia di Surrey" },
+    { title: "Battaglia di Falkirk (1298)", kicker: "Tappa 3 di 6", desc: "Re Edoardo I schiera gli archi lunghi inglesi contro gli schiltron di Wallace. Una prova di resistenza epica.", hp: 140, enemyName: "Arcieri di Edoardo I" },
+    { title: "Assedio di Dundee (1297/1298)", kicker: "Tappa 4 di 6", desc: "Le forze scozzesi cingono d'assedio la roccaforte di Dundee per liberare il nord.", hp: 180, enemyName: "Difensori del Castello" },
+    { title: "Scontro di Happrew (1304)", kicker: "Tappa 5 di 6", desc: "Wallace combatte in azioni di guerriglia contro le truppe sulle tracce dei ribelli scozzesi.", hp: 220, enemyName: "Pattuglia Inglese" },
+    { title: "Azione di Earnside (1304)", kicker: "Tappa 6 di 6", desc: "L'ultima battaglia documentata di Wallace prima della sua cattura. Resisti con tutte le tue forze!", hp: 260, enemyName: "Esercito di Occupazione" }
+  ];
+
+  const questImages = [
+    'https://upload.wikimedia.org/wikipedia/commons/a/a0/Scone_Palace_Morris_edited.jpg?utm_source=it.wikipedia.org&utm_campaign=index&utm_content=original',
+    'https://content.storicang.it/medio/2020/07/14/il-crollo-del-ponte-di-stirling-durante-la-battaglia-dell11-settembre-del-1297-incisione-del-xix-secolo-di-matthew-ridley_f69f3f0f_800x518.jpg',
+    'https://i.redd.it/ya0ta7gymoeh1.jpeg',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPRazHntqQDKl6xRjnKNfauZHQYcsmmlAMRnUaK_6FDNRxwOaiyB_RDWE&s=10',
+    'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/fa8d5091-144b-4d01-862c-73dfc7f7bdc1/devj7xn-7a2f3a0e-764c-4c49-9804-13603d293ef5.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiIvZi9mYThkNTA5MS0xNDRiLTRkMDEtODYyYy03M2RmYzdmN2JkYzEvZGV2ajd4bi03YTJmM2EwZS03NjRjLTRjNDktOTgwNC0xMzYwM2QyOTNlZjUucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.4NYqTiBeKO1WIM_q3goAiGC976pb0prsSdJbS93mvQs',
+    'https://scotlandshop.imgix.net/assets.scotlandshop.com/blog/Battle-of-Falkirk.jpg?auto=compress%2Cformat&fit=clip&h=464&q=70&w=682&s=05e74fa95ed239c5a37ca9569d61a243'
+  ];
+
+  let state = {};
+
+  function newGame() {
+    state = {
+      day: 1,
+      hp: 100,
+      maxHp: 100,
+      supplies: 5,
+      trust: 50,
+      points: 0,
+      enemyHp: quests[0].hp,
+      maxEnemyHp: quests[0].hp,
+      swordLevel: 0,
+      shieldLevel: 0,
+      tacticsLevel: 0,
+      healingLevel: 0,
+      rallyLevel: 0
+    };
+    $('game-over-panel').classList.add('hidden');
+    $('rest-panel').classList.add('hidden');$('quest-panel').classList.remove('hidden');
+    startDay();
+  }
+
+  function startDay() {
+    $('rest-panel').classList.add('hidden');$('quest-panel').classList.remove('hidden');
+    
+    // Assegnazione sicura immagine
+    const imgEl = $('quest-image');
+    imgEl.src = questImages[state.day - 1];
+    imgEl.onerror = () => { imgEl.style.display = 'none'; };
+    imgEl.onload = () => { imgEl.style.display = 'block'; };
+
+    state.enemyHp = quests[state.day - 1].hp;
+    state.maxEnemyHp = quests[state.day - 1].hp;
+
+    $('quest-kicker').textContent = quests[state.day - 1].kicker;
+    $('quest-heading').textContent = quests[state.day - 1].title;
+    $('quest-desc').textContent = quests[state.day - 1].desc;
+    $('enemy-name').textContent = quests[state.day - 1].enemyName;
+    $('combat-log').textContent = "Prepara la tua mossa...";
+    $('camp-message').textContent = "Fai le tue scelte per migliorare le truppe.";
+    
+    render();
+  }
+
+  function render() {
+    // Aggiornamento statistiche
+    $('hp-display').textContent = `${Math.max(0, state.hp)} / ${state.maxHp}`;
+    $('supplies-display').textContent = state.supplies;
+    $('trust-display').textContent = `${Math.min(100, Math.max(0, state.trust))}%`;
+    $('points-display').textContent = state.points;
+
+    // Nemico
+    $('enemy-hp-display').textContent = `HP: ${Math.max(0, state.enemyHp)} / ${state.maxEnemyHp}`;
+    const pct = Math.max(0, (state.enemyHp / state.maxEnemyHp) * 100);
+    $('enemy-hp-bar').style.width = `${pct}%`;
+
+    // Livelli potenziamenti accampamento
+    $('sword-lvl').textContent = `Lvl ${state.swordLevel}`;
+    $('shield-lvl').textContent = `Lvl ${state.shieldLevel}`;
+    $('tactics-lvl').textContent = `Lvl ${state.tacticsLevel}`;
+    $('healing-lvl').textContent = `Lvl ${state.healingLevel}`;
+    $('rally-lvl').textContent = `Lvl ${state.rallyLevel}`;
+  }
+
+  function checkGameOver() {
+    if (state.hp <= 0 || state.trust <= 0) {
+      $('quest-panel').classList.add('hidden');$('rest-panel').classList.add('hidden');
+      $('game-over-panel').classList.remove('hidden');$('end-title').textContent = "Sconfitta";
+      $('end-title').className = "text-3xl font-bold mb-4 text-red-500";
+      $('end-message').textContent = state.hp <= 0 
+        ? "William Wallace è caduto sul campo di battaglia. La Scozia piange il suo eroe." 
+        : "Il popolo scozzese ha perso la fiducia nella rivolta. Le truppe si sono disperse.";
+      return true;
+    }
+    return false;
+  }
+
+  // BOTTONI COMBATTIMENTO
+  $('attack-button').onclick = () => {
+    let baseDmg = 20 + (state.swordLevel * 10) + (state.tacticsLevel * 5);
+    let enemyDmg = Math.max(3, 15 - (state.shieldLevel * 4));
+
+    state.enemyHp -= baseDmg;
+    
+    if (state.enemyHp <= 0) {
+      winBattle();
+    } else {
+      state.hp -= enemyDmg;
+      $('combat-log').textContent = `Attacco riuscito! Inflitti ${baseDmg} danni. Subiti ${enemyDmg} danni dal contrattacco.`;
+      checkGameOver();
+      render();
+    }
+  };
+
+  $('defend-button').onclick = () => {
+    let heal = 10 + (state.healingLevel * 8);
+    let enemyDmg = Math.max(1, 8 - (state.shieldLevel * 3));
+    
+    state.hp = Math.min(state.maxHp, state.hp + heal - enemyDmg);
+    state.trust += 2 + (state.rallyLevel * 2);
+
+    $('combat-log').textContent = `Posizione difensiva! Recuperi ${heal} HP, subisci solo ${enemyDmg} danni. Fiducia popolare +${2 + (state.rallyLevel * 2)}%.`;
+    checkGameOver();
+    render();
+  };
+
+  $('rest-button').onclick = () => {
+    if (state.supplies <= 0) {
+      $('combat-log').textContent = "⚠️ Non hai abbastanza provviste per riposare!";
+      return;
+    }
+    state.supplies--;
+    let heal = 30;
+    state.hp = Math.min(state.maxHp, state.hp + heal);
+    $('combat-log').textContent = `Riposo effettuato! Recuperati ${heal} HP. Provviste rimanenti: ${state.supplies}.`;
+    render();
+  };
+
+  function winBattle() {
+    state.points++;
+    state.supplies += 2;
+    state.trust += 10 + (state.rallyLevel * 5);
+
+    if (state.day >= quests.length) {
+      $('quest-panel').classList.add('hidden');
+      $('game-over-panel').classList.remove('hidden');$('end-title').textContent = "Vittoria Straordinaria!";
+      $('end-title').className = "text-3xl font-bold mb-4 gold-text";
+      $('end-message').textContent = "Hai guidato la Scozia attraverso tutte le tappe storiche! La leggenda di William Wallace vivrà per sempre. LIBERTÀ!";
+    } else {
+      $('quest-panel').classList.add('hidden');$('rest-panel').classList.remove('hidden');
+    }
+    render();
+  }
+
+  $('next-day-button').onclick = () => {
+    state.day++;
+    startDay();
+  };
+
+  // BOTTONI POTENZIAMENTO ACCAMPAMENTO
+  $('sword-button').onclick = () => {
+    if (state.supplies < 2) {
+      $('camp-message').textContent = '⚠️ Servono 2 Provviste per potenziare la spada!';
+      return;
+    }
+    state.supplies -= 2;
+    state.swordLevel++;
+    $('camp-message').textContent = `Spada potenziata al Livello ${state.swordLevel}! Danni aumentati.`;
+    render();
+  };
+
+  $('shield-button').onclick = () => {
+    if (state.supplies < 2) {
+      $('camp-message').textContent = '⚠️ Servono 2 Provviste per potenziare lo scudo!';
+      return;
+    }
+    state.supplies -= 2;
+    state.shieldLevel++;
+    $('camp-message').textContent = `Scudo potenziato al Livello ${state.shieldLevel}! Danni subiti ridotti.`;
+    render();
+  };
+
+  $('tactics-button').onclick = () => {
+    if (state.points < 1) {
+      $('camp-message').textContent = '⚠️ Serve 1 Punto Abilità per questa tattica!';
+      return;
+    }
+    state.points--;
+    state.tacticsLevel++;
+    $('camp-message').textContent = `Tattica Guerriera portata al Livello ${state.tacticsLevel}!`;
+    render();
+  };
+
+  $('healing-button').onclick = () => {
+    if (state.points < 1) {
+      $('camp-message').textContent = '⚠️ Serve 1 Punto Abilità per questa abilità!';
+      return;
+    }
+    state.points--;
+    state.healingLevel++;
+    $('camp-message').textContent = `Approvvigionamento portato al Livello ${state.healingLevel}! Difesa/Cura migliorata.`;
+    render();
+  };
+
+  $('rally-button').onclick = () => {
+    if (state.points < 1) {
+      $('camp-message').textContent = '⚠️ Serve 1 Punto Abilità per questa abilità!';
+      return;
+    }
+    state.points--;
+    state.rallyLevel++;
+    $('camp-message').textContent = `Discorso Motivazionale portato al Livello ${state.rallyLevel}! Guadagni più fiducia.`;
+    render();
+  };
+
+  $('restart-button').onclick = () => {
+    newGame();
+  };
+
+  // AVVIO
+  newGame();
+  </script>
+</body>
+</html>
